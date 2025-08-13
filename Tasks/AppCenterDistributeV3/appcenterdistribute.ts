@@ -148,6 +148,7 @@ async function loadReleaseIdUntilSuccess(apiServer: string, apiVersion: string, 
             if (response && response.upload_status === "readyToBePublished" && response.release_distinct_id) {
                 const releaseId = response.release_distinct_id;
                 tl.debug(`---- Received release id is ${releaseId}`);
+                console.log("##vso[task.setVariable variable=appCenterReleaseId]${releaseId}")
                 clearInterval(timerId);
                 resolve(releaseId);
             } else if (!response || response.upload_status === "error") {
@@ -598,7 +599,7 @@ async function run() {
         await uploadRelease(uploadInfo, app);
         await patchRelease(effectiveApiServer, effectiveApiVersion, appSlug, uploadId, apiToken, userAgent);
         releaseId = await loadReleaseIdUntilSuccess(effectiveApiServer, effectiveApiVersion, appSlug, uploadId, apiToken, userAgent);
-
+        
         await updateRelease(effectiveApiServer, effectiveApiVersion, appSlug, releaseId, releaseNotes, apiToken, userAgent);
 
         await Promise.all(destinationIds.map(destinationId => {
